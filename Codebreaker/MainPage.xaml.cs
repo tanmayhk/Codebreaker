@@ -26,6 +26,7 @@ namespace Codebreaker
     {
         int _pegRow = 0;
         int _pegCol = 0;
+        bool isPaused = false;
         Ellipse[,] _ellipses = new Ellipse[5, 11];
         TextBlock[] _textboxes1 = new TextBlock[10];
         TextBlock[] _textboxes2 = new TextBlock[10];
@@ -65,8 +66,8 @@ namespace Codebreaker
                     Ellipse ellipse = new Ellipse();
                     Grid.SetRow(ellipse, row);
                     Grid.SetColumn(ellipse, col);
-                    ellipse.Height = 75;
-                    ellipse.Width = 75;
+                    ellipse.Height = 50;
+                    ellipse.Width = 50;
                     ellipse.HorizontalAlignment = HorizontalAlignment.Center;
                     ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
                     ellipse.StrokeThickness = 5;
@@ -193,11 +194,7 @@ namespace Codebreaker
             textbox2.Text = rightColorButWrongPlace.ToString();
             if (rightColorAndPlace == 4)
             {
-                SolidColorBrush victoryGreenColor = new SolidColorBrush(Colors.Green);
-                ellipse1.Stroke = victoryGreenColor;
-                ellipse2.Stroke = victoryGreenColor;
-                ellipse3.Stroke = victoryGreenColor;
-                ellipse4.Stroke = victoryGreenColor;
+                VictoryScreen();
             }
             if (tries == 10)
             {
@@ -228,6 +225,19 @@ namespace Codebreaker
                 e4.Fill = CodePeg4;
             }
         }
+        
+        private void VictoryScreen()
+        {
+            VictoryGrid.Visibility = Visibility.Visible;
+            if (tries == 1)
+            {
+                CongratsTextBlock.Text = "Good job! You got it in " + tries.ToString() + " try!";
+            }
+            else
+            {
+                CongratsTextBlock.Text = "Good job! You got it in " + tries.ToString() + " tries!";
+            }
+        }
         private void StopGame()
         {
             Red.IsEnabled = false;
@@ -236,6 +246,34 @@ namespace Codebreaker
             Violet.IsEnabled = false;
             Blue.IsEnabled = false;
             Green.IsEnabled = false;
-        }   
+        }
+
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            isPaused = !isPaused;
+            if (isPaused)
+            {
+                PauseButton.Content = "\uE768";
+                foreach (var child in ColorButtonGrid.Children)
+                {
+                    Button button = child as Button;
+                    button.IsEnabled = false;
+                }
+            }
+            else
+            {
+                PauseButton.Content = "\uE769";
+                foreach (var child in ColorButtonGrid.Children)
+                {
+                    Button button = child as Button;
+                    button.IsEnabled = true;
+                }
+            }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Exit();
+        }
     }       
 }           

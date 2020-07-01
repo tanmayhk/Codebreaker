@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
     <Grid x:Name="ParentGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
@@ -19,32 +18,28 @@
             <ColumnDefinition Width="8*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Row="2" Grid.Column="1">
+        <Grid Grid.Row="0" Grid.ColumnSpan="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="Red" Click="OnColorClick" Grid.Column ="0" Height="75" Width="75" Background="Red" HorizontalAlignment="Center" Margin="20"/>
-            <Button x:Name="Orange" Click="OnColorClick" Grid.Column ="1" Height="75" Width="75" Background="Orange" HorizontalAlignment="Center" Margin="20"/>
-            <Button x:Name="Gray" Click="OnColorClick" Grid.Column ="2" Height="75" Width="75" Background="Gray" HorizontalAlignment="Center" Margin="20"/>
-            <Button x:Name="Violet" Click="OnColorClick" Grid.Column ="3" Height="75" Width="75" Background="Violet" HorizontalAlignment="Center" Margin="20"/>
-            <Button x:Name="Blue" Click="OnColorClick" Grid.Column ="4" Height="75" Width="75"  Background="Blue" HorizontalAlignment="Center" Margin="20"/>
-            <Button x:Name="Green" Click="OnColorClick" Grid.Column ="5" Height="75" Width="75"  Background="Green" HorizontalAlignment="Center"/>
+            <Button x:Name="PauseButton" Click="PauseButton_Click" Grid.Column="1" HorizontalAlignment="Right" Margin="0, 0, 25, 0" Content="&#xE769;" FontSize="50" FontFamily="Segoe MDL2 Assets" Width="200" Height="100"/>
+            <Button x:Name="CloseButton" Click="CloseButton_Click" Grid.Column="2" HorizontalAlignment="Center" Width="100" Height="100" Content="&#xE8BB;" FontSize="40" FontFamily="Segoe MDL2 Assets"/>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="6*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <TextBlock x:Name="Header1" Grid.Row="1" Margin="20" VerticalAlignment="Center"/>
-            <TextBlock x:Name="Header2" Grid.Row="2" Margin="20" VerticalAlignment="Top"/>
+            <TextBlock x:Name="Header1" Grid.Row="4" Margin="15, 0, 5, 0" VerticalAlignment="Top" Padding="0, 10, 0, 0"/>
+            <TextBlock x:Name="Header2" Grid.Row="5" Margin="15, 0, 5, 0" VerticalAlignment="Top"/>
         </Grid>
-        <Grid x:Name="MainGrid" Grid.Row="1" Grid.Column="1" >
+        <Grid x:Name="MainGrid" Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="5" Padding="0, 10, 0, 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
@@ -68,6 +63,27 @@
             </Grid.RowDefinitions>
             <Border BorderBrush="Gray" BorderThickness="4" Grid.Row ="0" Grid.Column="10" Width="5" Grid.RowSpan="4" Background="Black" HorizontalAlignment="Left"/>
             <Border BorderBrush="Gray" BorderThickness="4" Grid.Row ="0" Grid.Column="9" Width="5" Grid.RowSpan="4" Background="Black" HorizontalAlignment="Right"/>
+            <Border BorderBrush="Gray" BorderThickness="4" Grid.Row ="0" Grid.Column="9" Width="5" Grid.RowSpan="4" Background="Black" HorizontalAlignment="Right"/>
+        </Grid>
+        <Grid x:Name="VictoryGrid" Visibility="Collapsed" Grid.Row="1" Grid.Column="1" Width="800" Height="400" Background="White" BorderBrush="Gray" BorderThickness="5">
+            <TextBlock x:Name="CongratsTextBlock" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="50" FontSize="50"/>
+            <Button Content="New Game" FontSize="50" Width="400" Height="100" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="50"/>
+        </Grid>
+        <Grid x:Name="ColorButtonGrid" Grid.Row="2" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Red" Click="OnColorClick" Grid.Column ="0" Height="100" Width="200" Background="Red" HorizontalAlignment="Center" Margin="20"/>
+            <Button x:Name="Orange" Click="OnColorClick" Grid.Column ="1" Height="100" Width="200" Background="Orange" HorizontalAlignment="Center" Margin="20"/>
+            <Button x:Name="Gray" Click="OnColorClick" Grid.Column ="2" Height="100" Width="200" Background="Gray" HorizontalAlignment="Center" Margin="20"/>
+            <Button x:Name="Violet" Click="OnColorClick" Grid.Column ="3" Height="100" Width="200" Background="Violet" HorizontalAlignment="Center" Margin="20"/>
+            <Button x:Name="Blue" Click="OnColorClick" Grid.Column ="4" Height="100" Width="200"  Background="Blue" HorizontalAlignment="Center" Margin="20"/>
+            <Button x:Name="Green" Click="OnColorClick" Grid.Column ="5" Height="100" Width="200"  Background="Green" HorizontalAlignment="Center" Margin="20"/>
         </Grid>
     </Grid>
 </Page>
