@@ -27,6 +27,7 @@ namespace Codebreaker
         int _pegRow = 0;
         int _pegCol = 0;
         bool isPaused = false;
+        bool _isSolutionVisible = false;
         Ellipse[,] _ellipses = new Ellipse[5, 11];
         TextBlock[] _textboxes1 = new TextBlock[10];
         TextBlock[] _textboxes2 = new TextBlock[10];
@@ -108,42 +109,29 @@ namespace Codebreaker
         }
         private void OnColorClick(object sender, RoutedEventArgs e)
         {
-
-            var button = sender as Button;
-            Ellipse ellipse = _ellipses[_pegRow, _pegCol];
-            ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
-            ellipse.Fill = button.Background;
-            _pegRow += 1;
-            if (_pegRow == 4)
+            if (!_isSolutionVisible)
             {
-                _pegRow = 0;
-                _pegCol += 1;
-                Ellipse ellipse_new = _ellipses[_pegRow, _pegCol];
-                ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
-                Feedback(_pegCol - 1, _currentCode);
-                ellipse_new.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
+                var button = sender as Button;
+                Ellipse ellipse = _ellipses[_pegRow, _pegCol];
+                ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
+                ellipse.Fill = button.Background;
+                _pegRow += 1;
+                if (_pegRow == 4)
+                {
+                    _pegRow = 0;
+                    _pegCol += 1;
+                    Ellipse ellipse_new = _ellipses[_pegRow, _pegCol];
+                    ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
+                    Feedback(_pegCol - 1, _currentCode);
+                    ellipse_new.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
+                }
+                else
+                {
+                    Ellipse ellipse_new = _ellipses[_pegRow, _pegCol];
+                    ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
+                    ellipse_new.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
+                }
             }
-            else
-            {
-                Ellipse ellipse_new = _ellipses[_pegRow, _pegCol];
-                ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
-                ellipse_new.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
-            }
-            Ellipse e1 = _ellipses[0, 10];
-            SolidColorBrush CodePeg1 = new SolidColorBrush(_currentCode[0]);
-            e1.Fill = CodePeg1;
-
-            Ellipse e2 = _ellipses[1, 10];
-            SolidColorBrush CodePeg2 = new SolidColorBrush(_currentCode[1]);
-            e2.Fill = CodePeg2;
-
-            Ellipse e3 = _ellipses[2, 10];
-            SolidColorBrush CodePeg3 = new SolidColorBrush(_currentCode[2]);
-            e3.Fill = CodePeg3;
-
-            Ellipse e4 = _ellipses[3, 10];
-            SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
-            e4.Fill = CodePeg4;
         }
         private void Feedback(int col, Color[] _currentCode)
         {
@@ -194,9 +182,9 @@ namespace Codebreaker
             textbox2.Text = rightColorButWrongPlace.ToString();
             if (rightColorAndPlace == 4)
             {
-                VictoryScreen();
+                EndScreen(true);
             }
-            if (tries == 10)
+            else if (tries == 10)
             {
                 StopGame();
                 SolidColorBrush failureRedColor = new SolidColorBrush(Colors.Red);
@@ -223,19 +211,26 @@ namespace Codebreaker
                 Ellipse e4 = _ellipses[3, 10];
                 SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
                 e4.Fill = CodePeg4;
+                EndScreen(false);
             }
         }
         
-        private void VictoryScreen()
+        private void EndScreen(bool isVictory)
         {
-            VictoryGrid.Visibility = Visibility.Visible;
-            if (tries == 1)
+            if (isVictory)
             {
-                CongratsTextBlock.Text = "Good job! You got it in " + tries.ToString() + " try!";
+                if (tries == 1)
+                {
+                    CongratsTextBlock.Text = "Good job! You got it in " + tries.ToString() + " try!";
+                }
+                else
+                {
+                    CongratsTextBlock.Text = "Good job! You got it in " + tries.ToString() + " tries!";
+                }
             }
             else
             {
-                CongratsTextBlock.Text = "Good job! You got it in " + tries.ToString() + " tries!";
+                CongratsTextBlock.Text = "You didn't crack the code.";
             }
         }
         private void StopGame()
@@ -275,5 +270,72 @@ namespace Codebreaker
         {
             Application.Current.Exit();
         }
+
+        private void ShowSolutionButton_Click(object sender, RoutedEventArgs e)
+        {
+            Ellipse e1 = _ellipses[0, 10];
+            SolidColorBrush CodePeg1 = new SolidColorBrush(_currentCode[0]);
+            e1.Fill = CodePeg1;
+
+            Ellipse e2 = _ellipses[1, 10];
+            SolidColorBrush CodePeg2 = new SolidColorBrush(_currentCode[1]);
+            e2.Fill = CodePeg2;
+
+            Ellipse e3 = _ellipses[2, 10];
+            SolidColorBrush CodePeg3 = new SolidColorBrush(_currentCode[2]);
+            e3.Fill = CodePeg3;
+
+            Ellipse e4 = _ellipses[3, 10];
+            SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
+            e4.Fill = CodePeg4;
+
+            _isSolutionVisible = true;
+            EndScreen(false);
+        }
+
+        private void StartGame_Click(object sender, RoutedEventArgs e)
+        {
+            StartGrid.Visibility = Visibility.Collapsed;
+            ParentGrid.Visibility = Visibility.Visible;
+        }
+
+        private void BacktoStartButton_Click(object sender, RoutedEventArgs e)
+        {
+            ParentGrid.Visibility = Visibility.Collapsed;
+            StartGrid.Visibility = Visibility.Visible;
+            ResetVariables();
+        }
+
+        private void ResetVariables()
+        {
+            ClearBoard();
+            _pegRow = 0;
+            _pegCol = 0;
+            isPaused = false;
+            _isSolutionVisible = false;
+            _ellipses = new Ellipse[5, 11];
+            _textboxes1 = new TextBlock[10];
+            _textboxes2 = new TextBlock[10];
+            _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.Gray, Colors.Violet, Colors.Blue, Colors.Green };
+            tries = 0;
+            CongratsTextBlock.Text = "";
+            CreateBoard();
+            _currentCode = CreateCode();
+        }
+        private void ClearBoard()
+        {
+            foreach (Ellipse ellipse in _ellipses)
+            {
+                MainGrid.Children.Remove(ellipse);
+            }
+            foreach (var t in MainGrid.Children)
+            {
+                TextBlock x = t as TextBlock;
+                if (x != null)
+                {
+                    MainGrid.Children.Remove(t);
+                }
+            }
+        }
     }       
-}           
+}
