@@ -70,12 +70,6 @@ namespace Codebreaker
                     ellipse.Height = 50;
                     ellipse.Width = 50;
                     ellipse.HorizontalAlignment = HorizontalAlignment.Center;
-                    ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
-                    ellipse.StrokeThickness = 5;
-                    if (row == 0 && col == 0)
-                    {
-                        ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
-                    }
                     _ellipses[row, col] = ellipse;
                     MainGrid.Children.Add(ellipse);
                 }
@@ -100,12 +94,41 @@ namespace Codebreaker
                 MainGrid.Children.Add(textbox);
                 _textboxes2[col] = textbox;
             }
+            InitializeLayout();
             Header1.TextWrapping = TextWrapping.Wrap;
             Header1.Text = "Correct Positions";
             Header2.TextWrapping = TextWrapping.Wrap;
             Header2.Text = "Wrong Positions";
             ParentGrid.UpdateLayout();
             MainGrid.UpdateLayout();
+        }
+
+        private void InitializeLayout()
+        {
+            foreach (var child in MainGrid.Children)
+            {
+                Ellipse e = child as Ellipse;
+                if (e == null)
+                {
+                    TextBlock t = child as TextBlock;
+                    if (t != null)
+                    {
+                        t.Text = "";
+                    }
+                }
+                else
+                {
+                    e.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
+                    e.Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)255, (byte)255, (byte)255));
+                    e.StrokeThickness = 5;
+                    int row = Grid.GetRow(e);
+                    int column = Grid.GetColumn(e);
+                    if (row == 0 && column == 0)
+                    { 
+                        e.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
+                    }
+                }
+            }
         }
         private void OnColorClick(object sender, RoutedEventArgs e)
         {
@@ -305,10 +328,9 @@ namespace Codebreaker
             StartGrid.Visibility = Visibility.Visible;
             ResetVariables();
         }
-
+        
         private void ResetVariables()
         {
-            ClearBoard();
             _pegRow = 0;
             _pegCol = 0;
             isPaused = false;
@@ -321,21 +343,18 @@ namespace Codebreaker
             CongratsTextBlock.Text = "";
             CreateBoard();
             _currentCode = CreateCode();
+            ResetColorButtons();
+            InitializeLayout();
         }
-        private void ClearBoard()
+
+        private void ResetColorButtons()
         {
-            foreach (Ellipse ellipse in _ellipses)
-            {
-                MainGrid.Children.Remove(ellipse);
-            }
-            foreach (var t in MainGrid.Children)
-            {
-                TextBlock x = t as TextBlock;
-                if (x != null)
-                {
-                    MainGrid.Children.Remove(t);
-                }
-            }
+            Red.IsEnabled = true;
+            Orange.IsEnabled = true;
+            Gray.IsEnabled = true;
+            Violet.IsEnabled = true;
+            Blue.IsEnabled = true;
+            Green.IsEnabled = true;
         }
     }       
 }
