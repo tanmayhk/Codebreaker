@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 
+
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace Codebreaker
@@ -26,43 +27,81 @@ namespace Codebreaker
     {
         int _pegRow = 0;
         int _pegCol = 0;
+        int _maxAttempts = 15;
+        int _maxColumns;
         bool isPaused = false;
         bool _isSolutionVisible = false;
-        Ellipse[,] _ellipses = new Ellipse[5, 11];
-        TextBlock[] _textboxes1 = new TextBlock[10];
-        TextBlock[] _textboxes2 = new TextBlock[10];
+        bool _isDuplicates = true;
+        Ellipse[,] _ellipses;
         Color[] _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.Gray, Colors.Violet, Colors.Blue, Colors.Green };
         int tries = 0;
         Random rnd;
         Color[] _currentCode;
+        TextBlock[] _textboxes1;
+        TextBlock[] _textboxes2;
         public MainPage()
         {
             this.InitializeComponent();
             rnd = new Random();
             Loaded += MainPage_Loaded;
+            _maxColumns = _maxAttempts + 1;
         }
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            CreateBoard();
-            _currentCode = CreateCode();
+            _textboxes1 = new TextBlock[_maxAttempts];
+            _textboxes2 = new TextBlock[_maxAttempts];
+            _ellipses = new Ellipse[4, _maxColumns];
         }
 
         private Color[] CreateCode()
         {
-            Color[] code = new Color[4];
-            for (int i = 0; i < 4; i ++)
+            if (_isDuplicates)
             {
-                int index = rnd.Next(0, 6);
-                code[i] = _allColors[index];
+                Color[] code = new Color[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    int index = rnd.Next(0, 6);
+                    code[i] = _allColors[index];
+                }
+                return code;
             }
-            return code;
+            else
+            {
+                Color[] code = new Color[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    bool x = true;
+                    while (x)
+                    {
+                        int index = rnd.Next(0, 6);
+                        if (!code.Contains(_allColors[index]))
+                        {
+                            x = false;
+                            code[i] = _allColors[index];
+                        }
+
+                    }
+                }
+                return code;
+            }
         }
         private void CreateBoard()
         {
-            for (int row = 0; row <= 3; row++)
+            CircleGrid.ColumnDefinitions.Clear();
+            CircleGrid.RowDefinitions.Clear();
+            CircleGrid.Children.Clear();
+            for (int row = 0; row < 6; row++)
             {
-                for (int col = 0; col <= 10; col++)
+                CircleGrid.RowDefinitions.Add(new RowDefinition());
+            }
+            for (int col = 0; col < _maxColumns; col++)
+            {
+                CircleGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            }
+            for (int row = 0; row < 4; row++)
+            {
+                for (int col = 0; col < _maxColumns; col++)
                 {
                     Ellipse ellipse = new Ellipse();
                     Grid.SetRow(ellipse, row);
@@ -71,27 +110,27 @@ namespace Codebreaker
                     ellipse.Width = 50;
                     ellipse.HorizontalAlignment = HorizontalAlignment.Center;
                     _ellipses[row, col] = ellipse;
-                    MainGrid.Children.Add(ellipse);
+                    CircleGrid.Children.Add(ellipse);
                 }
             }
-            for (int col = 0; col <= 9; col++)
+            for (int col = 0; col < _maxColumns - 1; col++)
             {
                 TextBlock textbox = new TextBlock();
                 Grid.SetRow(textbox, 4);
                 Grid.SetColumn(textbox, col);
                 textbox.HorizontalAlignment = HorizontalAlignment.Center;
                 textbox.FontSize = 20;
-                MainGrid.Children.Add(textbox);
+                CircleGrid.Children.Add(textbox);
                 _textboxes1[col] = textbox;
             }
-            for (int col = 0; col <= 9; col++)
+            for (int col = 0; col < _maxAttempts - 1; col++)
             {
                 TextBlock textbox = new TextBlock();
                 Grid.SetRow(textbox, 5);
                 Grid.SetColumn(textbox, col);
                 textbox.HorizontalAlignment = HorizontalAlignment.Center;
                 textbox.FontSize = 20;
-                MainGrid.Children.Add(textbox);
+                CircleGrid.Children.Add(textbox);
                 _textboxes2[col] = textbox;
             }
             InitializeLayout();
@@ -99,13 +138,13 @@ namespace Codebreaker
             Header1.Text = "Correct Positions";
             Header2.TextWrapping = TextWrapping.Wrap;
             Header2.Text = "Wrong Positions";
-            ParentGrid.UpdateLayout();
-            MainGrid.UpdateLayout();
+            GameGrid.UpdateLayout();
+            CircleGrid.UpdateLayout();
         }
 
         private void InitializeLayout()
         {
-            foreach (var child in MainGrid.Children)
+            foreach (var child in CircleGrid.Children)
             {
                 Ellipse e = child as Ellipse;
                 if (e == null)
@@ -207,31 +246,31 @@ namespace Codebreaker
             {
                 EndScreen(true);
             }
-            else if (tries == 10)
+            else if (tries == _maxAttempts)
             {
                 StopGame();
                 SolidColorBrush failureRedColor = new SolidColorBrush(Colors.Red);
                 for (int row = 0; row <= 3; row++)
                 {
-                    for (int column = 0; column <= 9; column++)
+                    for (int column = 0; column < _maxColumns; column++)
                     {
                         Ellipse ellipse = _ellipses[row, column];
                         ellipse.Stroke = failureRedColor;
                     }
                 }
-                Ellipse e1 = _ellipses[0, 10];
+                Ellipse e1 = _ellipses[0, _maxAttempts];
                 SolidColorBrush CodePeg1 = new SolidColorBrush(_currentCode[0]);
                 e1.Fill = CodePeg1;
 
-                Ellipse e2 = _ellipses[1, 10];
+                Ellipse e2 = _ellipses[1, _maxAttempts];
                 SolidColorBrush CodePeg2 = new SolidColorBrush(_currentCode[1]);
                 e2.Fill = CodePeg2;
 
-                Ellipse e3 = _ellipses[2, 10];
+                Ellipse e3 = _ellipses[2, _maxAttempts];
                 SolidColorBrush CodePeg3 = new SolidColorBrush(_currentCode[2]);
                 e3.Fill = CodePeg3;
 
-                Ellipse e4 = _ellipses[3, 10];
+                Ellipse e4 = _ellipses[3, _maxAttempts];
                 SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
                 e4.Fill = CodePeg4;
                 EndScreen(false);
@@ -277,6 +316,8 @@ namespace Codebreaker
                     Button button = child as Button;
                     button.IsEnabled = false;
                 }
+                BacktoStartButton.IsEnabled = false;
+                ShowSolutionButton.IsEnabled = false;
             }
             else
             {
@@ -286,6 +327,8 @@ namespace Codebreaker
                     Button button = child as Button;
                     button.IsEnabled = true;
                 }
+                BacktoStartButton.IsEnabled = true;
+                ShowSolutionButton.IsEnabled = true;
             }
         }
 
@@ -296,19 +339,19 @@ namespace Codebreaker
 
         private void ShowSolutionButton_Click(object sender, RoutedEventArgs e)
         {
-            Ellipse e1 = _ellipses[0, 10];
+            Ellipse e1 = _ellipses[0, _maxAttempts];
             SolidColorBrush CodePeg1 = new SolidColorBrush(_currentCode[0]);
             e1.Fill = CodePeg1;
 
-            Ellipse e2 = _ellipses[1, 10];
+            Ellipse e2 = _ellipses[1, _maxAttempts];
             SolidColorBrush CodePeg2 = new SolidColorBrush(_currentCode[1]);
             e2.Fill = CodePeg2;
 
-            Ellipse e3 = _ellipses[2, 10];
+            Ellipse e3 = _ellipses[2, _maxAttempts];
             SolidColorBrush CodePeg3 = new SolidColorBrush(_currentCode[2]);
             e3.Fill = CodePeg3;
 
-            Ellipse e4 = _ellipses[3, 10];
+            Ellipse e4 = _ellipses[3, _maxAttempts];
             SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
             e4.Fill = CodePeg4;
 
@@ -319,14 +362,16 @@ namespace Codebreaker
         private void StartGame_Click(object sender, RoutedEventArgs e)
         {
             StartGrid.Visibility = Visibility.Collapsed;
-            ParentGrid.Visibility = Visibility.Visible;
+            GameGrid.Visibility = Visibility.Visible;
+            ResetVariables();
+            CreateBoard();
+            _currentCode = CreateCode();
         }
 
         private void BacktoStartButton_Click(object sender, RoutedEventArgs e)
         {
-            ParentGrid.Visibility = Visibility.Collapsed;
+            GameGrid.Visibility = Visibility.Collapsed;
             StartGrid.Visibility = Visibility.Visible;
-            ResetVariables();
         }
         
         private void ResetVariables()
@@ -335,14 +380,12 @@ namespace Codebreaker
             _pegCol = 0;
             isPaused = false;
             _isSolutionVisible = false;
-            _ellipses = new Ellipse[5, 11];
-            _textboxes1 = new TextBlock[10];
-            _textboxes2 = new TextBlock[10];
+            _ellipses = new Ellipse[4, _maxColumns];
+            _textboxes1 = new TextBlock[_maxAttempts];
+            _textboxes2 = new TextBlock[_maxAttempts];
             _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.Gray, Colors.Violet, Colors.Blue, Colors.Green };
             tries = 0;
             CongratsTextBlock.Text = "";
-            CreateBoard();
-            _currentCode = CreateCode();
             ResetColorButtons();
             InitializeLayout();
         }
@@ -356,5 +399,21 @@ namespace Codebreaker
             Blue.IsEnabled = true;
             Green.IsEnabled = true;
         }
-    }       
+
+        private void Duplicates_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isDuplicates)
+            {
+                Duplicates.Content = "Duplicates: Off";
+                _maxAttempts = 10;
+            }
+            else
+            {
+                Duplicates.Content = "Duplicates: On";
+                _maxAttempts = 15;
+            }
+            _maxColumns = _maxAttempts + 1;
+            _isDuplicates = !_isDuplicates;
+        }
+    }
 }
