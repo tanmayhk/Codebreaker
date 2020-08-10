@@ -12,7 +12,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="6*"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -41,37 +41,22 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="Header1" Grid.Row="4" Margin="15, 0, 5, 0" VerticalAlignment="Top" Padding="0, 10, 0, 0"/>
-                <TextBlock x:Name="Header2" Grid.Row="5" Margin="15, 0, 5, 0" VerticalAlignment="Top"/>
+                <TextBlock x:Name="Header1" Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15"/>
+                <TextBlock x:Name="Header2" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15"/>
             </Grid>
-            <Grid x:Name="CircleGrid" Grid.Row="1" Grid.Column="1" BorderBrush="Gray" BorderThickness="5" Padding="0, 10, 0, 0">
+            <Grid x:Name="CircleGrid" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,50,0" BorderBrush="Gray" BorderThickness="5" Padding="0, 0, 0, 0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <Border BorderBrush="Gray" BorderThickness="4" Grid.Row ="0" Width="5" Grid.RowSpan="4" Background="Black" HorizontalAlignment="Left"/>
-                <Border BorderBrush="Gray" BorderThickness="4" Grid.Row ="0" Width="5" Grid.RowSpan="4" Background="Black" HorizontalAlignment="Right"/>
-                <Border BorderBrush="Gray" BorderThickness="4" Grid.Row ="0" Width="5" Grid.RowSpan="4" Background="Black" HorizontalAlignment="Right"/>
+                
             </Grid>
-            <Grid x:Name="ColorButtonGrid" Grid.Row="2" Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Button x:Name="Red" Click="OnColorClick" Grid.Column ="0" Height="100" Width="200" Background="Red" HorizontalAlignment="Center" Margin="20"/>
-                <Button x:Name="Orange" Click="OnColorClick" Grid.Column ="1" Height="100" Width="200" Background="Orange" HorizontalAlignment="Center" Margin="20"/>
-                <Button x:Name="Gray" Click="OnColorClick" Grid.Column ="2" Height="100" Width="200" Background="Gray" HorizontalAlignment="Center" Margin="20"/>
-                <Button x:Name="Violet" Click="OnColorClick" Grid.Column ="3" Height="100" Width="200" Background="Violet" HorizontalAlignment="Center" Margin="20"/>
-                <Button x:Name="Blue" Click="OnColorClick" Grid.Column ="4" Height="100" Width="200"  Background="Blue" HorizontalAlignment="Center" Margin="20"/>
-                <Button x:Name="Green" Click="OnColorClick" Grid.Column ="5" Height="100" Width="200"  Background="Green" HorizontalAlignment="Center" Margin="20"/>
+            <Grid x:Name="LowerGrid" Grid.Row="2" Grid.Column="1">
+                <Button Name="ConfirmGuessButton" Click="ConfirmGuessButton_Click" Content="Confirm Guess" Width="200" Height="50"/>
             </Grid>
         </Grid>
         <Grid x:Name="StartGrid">
