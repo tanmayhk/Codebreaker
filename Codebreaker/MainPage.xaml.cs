@@ -97,9 +97,12 @@ namespace Codebreaker
             CircleGrid.ColumnDefinitions.Clear();
             CircleGrid.RowDefinitions.Clear();
             CircleGrid.Children.Clear();
+            int[] rows = new int[6] { 3, 3, 3, 3, 2, 2 };
             for (int row = 0; row < 6; row++)
             {
-                CircleGrid.RowDefinitions.Add(new RowDefinition());
+                RowDefinition k = new RowDefinition();
+                k.Height = new GridLength(rows[row], GridUnitType.Star);
+                CircleGrid.RowDefinitions.Add(k);
             }
             for (int col = 0; col < _maxColumns; col++)
             {
@@ -129,7 +132,7 @@ namespace Codebreaker
                 CircleGrid.Children.Add(textbox);
                 _textboxes1[col] = textbox;
             }
-            for (int col = 0; col < _maxAttempts - 1; col++)
+            for (int col = 0; col < _maxColumns - 1; col++)
             {
                 TextBlock textbox = new TextBlock();
                 Grid.SetRow(textbox, 5);
@@ -304,8 +307,6 @@ namespace Codebreaker
                 Button b = new Button();
                 Grid.SetRow(b, i);
                 Grid.SetColumn(b, col);
-                b.BorderThickness = new Thickness(5, 5, 5, 5);
-                b.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)10, (byte)10, (byte)10));
                 b.Width = 100;
                 b.Height = 100;
                 b.HorizontalAlignment = HorizontalAlignment.Center;
@@ -314,7 +315,7 @@ namespace Codebreaker
             }
         }
 
-        private void MoveButtonsOnCurrentColumn(int col)
+        private void MoveButtonsToCurrentColumn(int col)
         {
             foreach (var child in CircleGrid.Children)
             {
@@ -465,9 +466,14 @@ namespace Codebreaker
                 Feedback(_tries, _currentCode);
                 if (_moveOnToNextGuess)
                 {
+                    _numberOfClickTimes = new List<int>();
+                    for (int i = 0; i < 4; i++)
+                    {
+                        _numberOfClickTimes.Add(0);
+                    }
                     _moveOnToNextGuess = false;
                     _pegCol += 1;
-                    MoveButtonsOnCurrentColumn(_pegCol);
+                    MoveButtonsToCurrentColumn(_pegCol);
                 }
             }
         }
