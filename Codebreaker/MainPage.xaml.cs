@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Input.GazeInteraction;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -30,20 +32,29 @@ namespace Codebreaker
         int _maxAttempts = 10;
         int _maxColumns;
         int _tries = 0;
-        List<int> _numberOfClickTimes = new List<int>();
         bool isPaused = false;
         bool _isSolutionVisibleOnBoard = false;
         bool _isDuplicates;
         bool _moveOnToNextGuess = false;
+        bool _isCircleClicked = false;
+        bool _isGameDone = false;
+        bool _isSolved = false;
         Ellipse[,] _ellipses;
-        Color[] _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.Gray, Colors.Violet, Colors.Blue, Colors.Green };
+        Color _selectionButtonGray = Windows.UI.Color.FromArgb((byte)255, (byte)231, (byte)231, (byte)231);
+        Color[] _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.MediumPurple, Colors.SaddleBrown, Colors.Navy, Colors.Green };
+        Color[] _allColorsWithBlank;
+        
         Random rnd;
         Color[] _currentCode;
         TextBlock[] _textboxes1;
         TextBlock[] _textboxes2;
+        Button _selectedButton;
+
+        Button _ConfirmGuessButton = new Button();
         public MainPage()
         {
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
             rnd = new Random();
             Loaded += MainPage_Loaded;
             _maxColumns = _maxAttempts + 1;
@@ -54,10 +65,7 @@ namespace Codebreaker
             _textboxes1 = new TextBlock[_maxAttempts];
             _textboxes2 = new TextBlock[_maxAttempts];
             _ellipses = new Ellipse[4, _maxColumns];
-            for (int i = 0; i < 4; i++)
-            {
-                _numberOfClickTimes.Add(0);
-            }
+            _allColorsWithBlank = new Color[7] { _selectionButtonGray, Colors.Red, Colors.Orange, Colors.MediumPurple, Colors.SaddleBrown, Colors.Navy, Colors.Green };
         }
 
         private Color[] CreateCode()
@@ -109,35 +117,27 @@ namespace Codebreaker
             Grid.SetColumnSpan(FeedbackGrid, _maxColumns);
             FeedbackGrid.RowDefinitions.Add(new RowDefinition());
             FeedbackGrid.RowDefinitions.Add(new RowDefinition());
-            FeedbackGrid.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)178, (byte)178, (byte)178));
+            FeedbackGrid.BorderThickness = new Thickness(0, 5, 0, 0);
+            FeedbackGrid.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
             CircleGrid.Children.Add(FeedbackGrid);
             for (int col = 0; col < _maxColumns; col++)
             {
                 CircleGrid.ColumnDefinitions.Add(new ColumnDefinition());
                 FeedbackGrid.ColumnDefinitions.Add(new ColumnDefinition());
             }
-            for (int row = 0; row < 4; row++)
+            for (int col = 0; col < _maxColumns - 1; col++)
             {
-                for (int col = 0; col < _maxColumns; col++)
-                {
-                    Ellipse ellipse = new Ellipse();
-                    Grid.SetRow(ellipse, row);
-                    Grid.SetColumn(ellipse, col);
-                    ellipse.Height = 50;
-                    ellipse.Width = 50;
-
-                    if (col == 0 || col == _maxColumns - 1)
-                    {
-                        ellipse.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        ellipse.Visibility = Visibility.Collapsed;
-                    }
-                    ellipse.HorizontalAlignment = HorizontalAlignment.Center;
-                    _ellipses[row, col] = ellipse;
-                    CircleGrid.Children.Add(ellipse);
-                }
+                AddButtonsOnCurrentColumn(col);
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                Ellipse ellipse = new Ellipse();
+                ellipse.Height = 50;
+                ellipse.Width = 50;
+                Grid.SetRow(ellipse, i);
+                Grid.SetColumn(ellipse, _maxColumns - 1);
+                _ellipses[i, _maxColumns - 1] = ellipse;
+                CircleGrid.Children.Add(ellipse);
             }
             for (int col = 0; col < _maxColumns - 1; col++)
             {
@@ -148,7 +148,7 @@ namespace Codebreaker
                 textbox.VerticalAlignment = VerticalAlignment.Center;
                 textbox.FontFamily = new FontFamily("Segoe MDL2 Assets");
                 textbox.FontSize = 20;
-                textbox.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)100, (byte)0));
+                textbox.Foreground = new SolidColorBrush(Colors.Black);
                 FeedbackGrid.Children.Add(textbox);
                 _textboxes1[col] = textbox;
             }
@@ -161,7 +161,7 @@ namespace Codebreaker
                 textbox.VerticalAlignment = VerticalAlignment.Center;
                 textbox.FontFamily = new FontFamily("Segoe MDL2 Assets");
                 textbox.FontSize = 20;
-                textbox.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)128, (byte)0, (byte)0));
+                textbox.Foreground = new SolidColorBrush(Colors.Black);
                 FeedbackGrid.Children.Add(textbox);
                 _textboxes2[col] = textbox;
             }
@@ -171,7 +171,7 @@ namespace Codebreaker
             Grid.SetRow(rectLeft, 0);
             Grid.SetColumn(rectLeft, _maxColumns - 1);
             Grid.SetRowSpan(rectLeft, 4);
-            rectLeft.Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
+            rectLeft.Fill = new SolidColorBrush(Colors.LightSlateGray);
             rectLeft.HorizontalAlignment = HorizontalAlignment.Left;
             CircleGrid.Children.Add(rectLeft);
 
@@ -180,9 +180,23 @@ namespace Codebreaker
             Grid.SetRow(rectRight, 0);
             Grid.SetColumn(rectRight, _maxColumns - 2);
             Grid.SetRowSpan(rectRight, 4);
-            rectRight.Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
+            rectRight.Fill = new SolidColorBrush(Colors.LightSlateGray);
             rectRight.HorizontalAlignment = HorizontalAlignment.Right;
             CircleGrid.Children.Add(rectRight);
+
+            _ConfirmGuessButton.Click += ConfirmGuessButton_Click;
+            _ConfirmGuessButton.Width = 130;
+            _ConfirmGuessButton.Height = 130;
+            _ConfirmGuessButton.HorizontalAlignment = HorizontalAlignment.Center;
+            _ConfirmGuessButton.FontFamily = new FontFamily("Segoe MDL2 Assets");
+            _ConfirmGuessButton.FontSize = 40;
+            _ConfirmGuessButton.Content = "\uE73E";
+            _ConfirmGuessButton.Background = new SolidColorBrush(Colors.LightSlateGray);
+            _ConfirmGuessButton.Foreground = new SolidColorBrush(Colors.White);
+            Grid.SetRow(_ConfirmGuessButton, 0);
+            Grid.SetRowSpan(_ConfirmGuessButton, 2);
+            Grid.SetColumn(_ConfirmGuessButton, 0);
+            FeedbackGrid.Children.Add(_ConfirmGuessButton);
 
             InitializeLayout();
         }
@@ -202,9 +216,9 @@ namespace Codebreaker
                 }
                 else
                 {
-                    e.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)0, (byte)0, (byte)0));
+                    e.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)65, (byte)64, (byte)66));
                     e.Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)255, (byte)255, (byte)255));
-                    e.StrokeThickness = 5;
+                    e.StrokeThickness = 2;
                     int row = Grid.GetRow(e);
                     int column = Grid.GetColumn(e);
                 }
@@ -214,25 +228,66 @@ namespace Codebreaker
             FeedbackGrid.UpdateLayout();
             CircleGrid.UpdateLayout();
         }
-        private void OnColorClick(object sender, RoutedEventArgs e)
+
+        private void OnCircleClick(object sender, RoutedEventArgs e)
         {
-            if (!_isSolutionVisibleOnBoard)
+            if (!_isCircleClicked)
             {
-                var button = sender as Button;
-                int r = Grid.GetRow(button);
-                int c = Grid.GetColumn(button);
-                Ellipse ellipse = _ellipses[r, c];
-                _numberOfClickTimes[r] += 1;
-                int x = (_numberOfClickTimes[r] % 7) - 1;
-                if (x != -1)
+                Button button = sender as Button;
+                button.BorderThickness = new Thickness(3);
+                button.BorderBrush = new SolidColorBrush(Colors.Black);
+                foreach (var child in PaletteGrid.Children)
                 {
-                    ellipse.Fill = new SolidColorBrush(_allColors[x]);
+                    Button b = child as Button;
+                    b.IsEnabled = true;
+                }
+                if (_selectedButton == new Button())
+                {
+                    _selectedButton = button;
+                    _isCircleClicked = !_isCircleClicked;
                 }
                 else
                 {
-                    ellipse.Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)255, (byte)255, (byte)255));
+                    _selectedButton.BorderThickness = new Thickness(0);
+                    _selectedButton.BorderBrush = new SolidColorBrush(Colors.Black);
+                    button.BorderThickness = new Thickness(3);
+                    button.BorderBrush = new SolidColorBrush(Colors.Black);
+                    _selectedButton = button;
                 }
             }
+            else
+            {
+                Button button = sender as Button;
+                button.BorderThickness = new Thickness(0);
+                button.BorderBrush = new SolidColorBrush(Colors.Black);
+                foreach (var child in PaletteGrid.Children)
+                {
+                    Button b = child as Button;
+                    b.IsEnabled = false;
+                }
+                _selectedButton = new Button();
+                _isCircleClicked = !_isCircleClicked;
+            }
+        }
+        private void OnColorClick(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            SolidColorBrush backgroundBrush = (SolidColorBrush)button.Background;
+
+            int selectedRow = Grid.GetRow(_selectedButton);
+            int selectedColumn = Grid.GetColumn(_selectedButton);
+
+            Ellipse selectedEllipse = _ellipses[selectedRow, selectedColumn];
+            selectedEllipse.Fill = backgroundBrush;
+
+            foreach (var child in PaletteGrid.Children)
+            {
+                Button b = child as Button;
+                b.IsEnabled = false;
+            }
+            
+            _selectedButton.BorderThickness = new Thickness(0);
+            _selectedButton = new Button();
         }
         private void Feedback(int col, Color[] _currentCode)
         {
@@ -245,7 +300,7 @@ namespace Codebreaker
             Ellipse ellipse4 = _ellipses[3, col];
             Color color4 = ((SolidColorBrush)ellipse4.Fill).Color;
             
-            if (color1 != Colors.White && color2 != Colors.White && color3 != Colors.White && color4 != Colors.White)
+            if (color1 != _selectionButtonGray && color2 != _selectionButtonGray && color3 != _selectionButtonGray && color4 != _selectionButtonGray)
             {
                 _tries += 1;
                 _moveOnToNextGuess = true;
@@ -289,11 +344,11 @@ namespace Codebreaker
                 string rightColorPlaceString = "";
                 for (int i = 0; i < rightColorButWrongPlace; i++)
                 {
-                    rightColorWrongPlaceString += "\uE73E ";
+                    rightColorWrongPlaceString += "\uE734 ";
                 }
                 for (int i = 0; i < rightColorAndPlace; i++)
                 {
-                    rightColorPlaceString += "\uE73E ";
+                    rightColorPlaceString += "\uE735 ";
                 }
 
                 textbox1.Text = rightColorPlaceString;
@@ -301,20 +356,30 @@ namespace Codebreaker
 
                 if (rightColorAndPlace == 4)
                 {
+                    _isSolved = true;
                     EndScreen(true);
+
+                    Ellipse e1 = _ellipses[0, _maxAttempts];
+                    SolidColorBrush CodePeg1 = new SolidColorBrush(_currentCode[0]);
+                    e1.Fill = CodePeg1;
+
+                    Ellipse e2 = _ellipses[1, _maxAttempts];
+                    SolidColorBrush CodePeg2 = new SolidColorBrush(_currentCode[1]);
+                    e2.Fill = CodePeg2;
+
+                    Ellipse e3 = _ellipses[2, _maxAttempts];
+                    SolidColorBrush CodePeg3 = new SolidColorBrush(_currentCode[2]);
+                    e3.Fill = CodePeg3;
+
+                    Ellipse e4 = _ellipses[3, _maxAttempts];
+                    SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
+                    e4.Fill = CodePeg4;
+
                     _isSolutionVisibleOnBoard = true;
                 }
                 else if (_tries == _maxAttempts)
                 {
-                    SolidColorBrush failureRedColor = new SolidColorBrush(Colors.Red);
-                    for (int row = 0; row <= 3; row++)
-                    {
-                        for (int column = 0; column < _maxColumns; column++)
-                        {
-                            Ellipse ellipse = _ellipses[row, column];
-                            ellipse.Stroke = failureRedColor;
-                        }
-                    }
+                    _isSolved = true;
                     Ellipse e1 = _ellipses[0, _maxAttempts];
                     SolidColorBrush CodePeg1 = new SolidColorBrush(_currentCode[0]);
                     e1.Fill = CodePeg1;
@@ -342,27 +407,73 @@ namespace Codebreaker
                 Button b = new Button();
                 Grid.SetRow(b, i);
                 Grid.SetColumn(b, col);
-                b.Width = 150;
+                b.Width = 130;
                 b.Height = 100;
                 b.HorizontalAlignment = HorizontalAlignment.Center;
-                b.Click += OnColorClick;
+                b.Background = new SolidColorBrush(_selectionButtonGray);
+                b.Click += OnCircleClick;
+
+                if (col == 0)
+                {
+                    b.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    b.Visibility = Visibility.Collapsed;
+                }
                 CircleGrid.Children.Add(b);
+
+                Ellipse ellipse = new Ellipse();
+                ellipse.Height = 50;
+                ellipse.Width = 50;
+
+                ellipse.StrokeThickness = 2;
+                ellipse.Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(255, (byte)65, (byte)64, (byte)66));
+                ellipse.Fill = new SolidColorBrush(_selectionButtonGray);
+
+                if (col == 0)
+                {
+                    ellipse.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    ellipse.Visibility = Visibility.Collapsed;
+                }
+                ellipse.HorizontalAlignment = HorizontalAlignment.Center;
+                _ellipses[i, col] = ellipse;
+
+                if (col < _maxColumns - 1)
+                {
+                    b.Content = ellipse;
+                }
             }
         }
 
-        private void MoveButtonsToCurrentColumn(int col)
+        private void MoveToNextColumnOfButtons(int col)
         {
             foreach (var child in CircleGrid.Children)
             {
                 Button b = child as Button;
                 if (b != null)
                 {
-                    Grid.SetColumn(b, col);
+                    int c = Grid.GetColumn(b);
+                    if (c == col)
+                    {
+                        b.Visibility = Visibility.Visible;
+                    }
+                    if (c == col - 1)
+                    {
+                        b.Click -= OnCircleClick;
+                        GazeInput.SetInteraction(b, Interaction.Disabled);
+                    }
                 }
             }
+            int confirmGuessButtonColumn = Grid.GetColumn(_ConfirmGuessButton);
+            Grid.SetColumn(_ConfirmGuessButton, confirmGuessButtonColumn + 1);
         }
         private void EndScreen(bool isVictory)
         {
+            CongratsGrid.Visibility = Visibility.Visible;
             if (isVictory)
             {
                 if (_tries == 1)
@@ -376,7 +487,7 @@ namespace Codebreaker
             }
             else
             {
-                CongratsTextBlock.Text = "You didn't crack the code.";
+                CongratsTextBlock.Text = "Sorry - you didn't crack the code. Please try again!";
             }
         }
 
@@ -388,7 +499,10 @@ namespace Codebreaker
                 PauseButton.Content = "\uE768";
                 BacktoStartButton.IsEnabled = false;
                 ShowSolutionButton.IsEnabled = false;
-                ConfirmGuessButton.IsEnabled = false;
+                _ConfirmGuessButton.IsEnabled = false;
+
+                GazeInput.SetInteraction(PaletteGrid, Interaction.Disabled);
+                GazeInput.SetInteraction(CircleGrid, Interaction.Disabled);
                 foreach (var child in CircleGrid.Children)
                 {
                     Button b = child as Button;
@@ -397,13 +511,21 @@ namespace Codebreaker
                         b.IsEnabled = false;
                     }
                 }
+                foreach (var child in PaletteGrid.Children)
+                {
+                    Button b = child as Button;
+                    b.IsEnabled = false;
+                }
             }
             else
             {
                 PauseButton.Content = "\uE769";
                 BacktoStartButton.IsEnabled = true;
                 ShowSolutionButton.IsEnabled = true;
-                ConfirmGuessButton.IsEnabled = true;
+                _ConfirmGuessButton.IsEnabled = true;
+
+                GazeInput.SetInteraction(PaletteGrid, Interaction.Enabled);
+                GazeInput.SetInteraction(CircleGrid, Interaction.Enabled);
                 foreach (var child in CircleGrid.Children)
                 {
                     Button b = child as Button;
@@ -411,6 +533,11 @@ namespace Codebreaker
                     {
                         b.IsEnabled = true;
                     }
+                }
+                foreach (var child in PaletteGrid.Children)
+                {
+                    Button b = child as Button;
+                    b.IsEnabled = true;
                 }
             }
         }
@@ -438,6 +565,17 @@ namespace Codebreaker
             SolidColorBrush CodePeg4 = new SolidColorBrush(_currentCode[3]);
             e4.Fill = CodePeg4;
 
+            GazeInput.SetInteraction(CircleGrid, Interaction.Disabled);
+
+            foreach (var child in CircleGrid.Children)
+            {
+                Button b = child as Button;
+                if (b != null)
+                {
+                    b.IsEnabled = false;
+                    GazeInput.SetInteraction(b, Interaction.Disabled);
+                }
+            }
             _isSolutionVisibleOnBoard = true;
             EndScreen(false);
         }
@@ -449,11 +587,11 @@ namespace Codebreaker
             ResetVariables();
             CreateBoard();
             _currentCode = CreateCode();
-            AddButtonsOnCurrentColumn(_pegCol);
         }
 
         private void BacktoStartButton_Click(object sender, RoutedEventArgs e)
         {
+            CongratsGrid.Visibility = Visibility.Collapsed;
             GameGrid.Visibility = Visibility.Collapsed;
             StartGrid.Visibility = Visibility.Visible;
         }
@@ -462,19 +600,24 @@ namespace Codebreaker
         {
             _pegRow = 0;
             _pegCol = 0;
-            isPaused = false;
+            isPaused = false; 
             _isSolutionVisibleOnBoard = false;
             _ellipses = new Ellipse[4, _maxColumns];
             _textboxes1 = new TextBlock[_maxAttempts];
             _textboxes2 = new TextBlock[_maxAttempts];
-            _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.Gray, Colors.Violet, Colors.Blue, Colors.Green };
+            _allColors = new Color[6] { Colors.Red, Colors.Orange, Colors.MediumPurple, Colors.SaddleBrown, Colors.Navy, Colors.Green };
+            _allColorsWithBlank = new Color[7] { _selectionButtonGray, Colors.Red, Colors.Orange, Colors.MediumPurple, Colors.SaddleBrown, Colors.Navy, Colors.Green };
             _tries = 0;
             CongratsTextBlock.Text = "";
-            _numberOfClickTimes = new List<int>();
-            for (int i = 0; i < 4; i++)
+            _selectedButton = new Button();
+            _isCircleClicked = false;
+            _ConfirmGuessButton = new Button();
+            foreach (var child in PaletteGrid.Children)
             {
-                _numberOfClickTimes.Add(0);
+                Button b = child as Button;
+                b.IsEnabled = false;
             }
+            _isSolved = false;
             InitializeLayout();
         }
 
@@ -486,15 +629,20 @@ namespace Codebreaker
                 if (_moveOnToNextGuess)
                 {
                     _pegCol += 1;
-                    _numberOfClickTimes = new List<int>();
                     for (int i = 0; i < 4; i++)
                     {
-                        _numberOfClickTimes.Add(0);
                         Ellipse circle = _ellipses[i, _pegCol];
                         circle.Visibility = Visibility.Visible;
                     }
                     _moveOnToNextGuess = false;
-                    MoveButtonsToCurrentColumn(_pegCol);
+                    if (! _isSolved)
+                    {
+                        MoveToNextColumnOfButtons(_pegCol);
+                    }
+                    else
+                    {
+                        _ConfirmGuessButton.Visibility = Visibility.Collapsed;
+                    }
                 }
             }
         }
@@ -509,6 +657,20 @@ namespace Codebreaker
         {
             _isDuplicates = true;
             StartGame();
+        }
+
+        private void HowToPlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            HelpGrid.Visibility = Visibility.Visible;
+        }
+        private void CloseHowToPlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            HelpGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void CloseCongratsButton_Click(object sender, RoutedEventArgs e)
+        {
+            CongratsGrid.Visibility = Visibility.Collapsed;
         }
     }
 }

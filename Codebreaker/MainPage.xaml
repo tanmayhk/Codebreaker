@@ -5,14 +5,17 @@
     xmlns:local="using:Codebreaker"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:gaze="using:Microsoft.Toolkit.Uwp.Input.GazeInteraction"
+    gaze:GazeInput.Interaction="Enabled"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Grid>
         <Grid x:Name="GameGrid" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="10*"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="6*"/>
+                <RowDefinition Height="6*"/>
+                <RowDefinition Height="30*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -27,76 +30,117 @@
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="BacktoStartButton" Click="BacktoStartButton_Click" Grid.Column="3" Grid.ColumnSpan="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="100" Content="New Game" FontSize="30"/>
-                <TextBlock x:Name="CongratsTextBlock" Text="" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 0" FontSize="40"/>
-                <Button x:Name="ShowSolutionButton" Content="Show Solution" Margin="0, 0, 0, 0" FontSize="24" Grid.Column="1" Click="ShowSolutionButton_Click" Width="200" Height="100" HorizontalAlignment="Center"/>
-                <Button x:Name="PauseButton" Click="PauseButton_Click" Grid.Column="0" Margin="20, 0, 0, 0" HorizontalAlignment="Left" Content="&#xE769;" FontSize="50" FontFamily="Segoe MDL2 Assets" Width="100" Height="100"/>
-                <Button x:Name="CloseButton" Click="CloseButton_Click" Grid.Column="4" HorizontalAlignment="Right" Margin="0,0,20,0" Width="100" Height="100" Content="&#xE8BB;" FontSize="40" FontFamily="Segoe MDL2 Assets"/>
+                <Button x:Name="BacktoStartButton" Click="BacktoStartButton_Click" Grid.Column="3" Grid.ColumnSpan="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="100" Content="New Game" FontSize="24" Background="LightSlateGray" Foreground="White"/>
+                <Button x:Name="ShowSolutionButton" Content="Show Solution" Margin="0, 0, 0, 0" FontSize="24" Grid.Column="1" Click="ShowSolutionButton_Click" Width="200" Height="100" HorizontalAlignment="Center" Background="LightSlateGray" Foreground="White"/>
+                <Button x:Name="PauseButton" Click="PauseButton_Click" Grid.Column="0" Margin="20, 0, 0, 0" HorizontalAlignment="Left" Content="&#xE769;" FontSize="50" FontFamily="Segoe MDL2 Assets" Width="100" Height="100" Background="LightSlateGray" Foreground="White"/>
+                <Button x:Name="CloseButton" Click="CloseButton_Click" Grid.Column="4" HorizontalAlignment="Right" Margin="0,0,20,0" Width="100" Height="100" Content="&#xE8BB;" FontSize="40" FontFamily="Segoe MDL2 Assets" Background="LightSlateGray" Foreground="White"/>
+                <TextBlock Text="Codebreaker" Foreground="#741113" FontSize="60" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"/>
             </Grid>
-            <Grid Grid.Row="1" Grid.Column="0">
+            <Grid x:Name="PaletteGrid" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Button Width="100" Height="100" Grid.Column="0" Click="OnColorClick" IsEnabled="False" Background="Red"  HorizontalAlignment="Center"/>
+                <Button Width="100" Height="100" Grid.Column="1" Click="OnColorClick" IsEnabled="False" Background="Orange" HorizontalAlignment="Center"/>
+                <Button Width="100" Height="100" Grid.Column="2" Click="OnColorClick" IsEnabled="False" Background="MediumPurple" HorizontalAlignment="Center"/>
+                <Button Width="100" Height="100" Grid.Column="3" Click="OnColorClick" IsEnabled="False" Background="SaddleBrown" HorizontalAlignment="Center"/>
+                <Button Width="100" Height="100" Grid.Column="4" Click="OnColorClick" IsEnabled="False" Background="Navy" HorizontalAlignment="Center"/>
+                <Button Width="100" Height="100" Grid.Column="5" Click="OnColorClick" IsEnabled="False" Background="Green" HorizontalAlignment="Center"/>
+            </Grid>
+            <Grid x:Name="CircleGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="20,0,20,0" BorderBrush="LightSlateGray" BorderThickness="5" Padding="0, 0, 0, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height="3*"/>
-                    <RowDefinition Height="4*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
                 </Grid.RowDefinitions>
                 <Grid x:Name="FeedbackGrid" Grid.Row="4">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-                    
                 </Grid>
             </Grid>
-            <Grid x:Name="CircleGrid" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="20,0,20,0" BorderBrush="Gray" BorderThickness="5" Padding="0, 0, 0, 0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="2*"/>
-                    <RowDefinition Height="2*"/>
-                </Grid.RowDefinitions>
-            </Grid>
             <Grid x:Name="LowerGrid" Grid.Row="2" Grid.Column="1">
-                <Button Name="ConfirmGuessButton" Click="ConfirmGuessButton_Click" Content="Confirm Guess" Width="1000" Height="100" FontSize="50" HorizontalAlignment="Center"/>
             </Grid>
         </Grid>
         <Grid x:Name="StartGrid">
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="4*"/>
                 <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
+            <Grid BorderThickness="20,20,20,10" BorderBrush="LightSlateGray" Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="6*"/>
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Codebreaker" FontSize="100" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30"/>
-                <Button x:Name="FirstCloseButton" Click="CloseButton_Click" Grid.Column="2" HorizontalAlignment="Center" Width="100" Height="100" Content="&#xE8BB;" FontSize="40" FontFamily="Segoe MDL2 Assets"/>
-                <Border Grid.Column="0" Width="100" Height="100" BorderBrush="Black" BorderThickness="4"/>
+                <TextBlock Text="Codebreaker" Foreground="#741113" FontSize="100" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0"/>
+                <Button x:Name="FirstCloseButton" Click="CloseButton_Click" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="150" Height="150" Content="&#xE8BB;" FontSize="40" FontFamily="Segoe MDL2 Assets" Background="LightSlateGray" Foreground="White"/>
+                <Button x:Name="HowToPlayButton" Click="HowToPlayButton_Click" Grid.Column="0" Content="How to play" Width="250" Height="150" FontSize="35" HorizontalAlignment="Center" VerticalAlignment="Center" Background="LightSlateGray" Foreground="White"/>
+                <Image Source="Assets\400x400.png" Width="175" Grid.Column="1" VerticalAlignment="Bottom" Margin="20"/>
             </Grid>
-            <Grid Grid.Row="1">
+            <Grid BorderThickness="20,10,20,20" BorderBrush="LightSlateGray" Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="HowToPlayButton" Grid.Column="0" Grid.ColumnSpan="2" Content="How To Play" Width="250" Height="150" FontSize="35" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <Button x:Name="EasyGameStart" Grid.Column="0" Click="EasyGameStart_Click" Width="300" Height="200" HorizontalAlignment="Center" FontSize="20">
+                <Button x:Name="EasyGameStart" Grid.Column="0" Click="EasyGameStart_Click" Width="300" Height="200" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,100,0,0" Background="LightSlateGray" Foreground="White">
                     <StackPanel Orientation="Vertical">
                         <TextBlock  Text="Easy" HorizontalAlignment="Center" FontSize="50"/>
-                        <TextBlock Text="(without duplicates)" HorizontalAlignment="Center" FontSize="20"/>
+                        <TextBlock Text="(no duplicates)" HorizontalAlignment="Center" FontSize="25"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="HardGameStart" Grid.Column="1" Click="HardGameStart_Click" Width="300" Height="200" HorizontalAlignment="Center" FontSize="20">
+                <Button x:Name="HardGameStart" Grid.Column="1" Click="HardGameStart_Click" Width="300" Height="200" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,100,0,0" Background="LightSlateGray" Foreground="White">
                     <StackPanel Orientation="Vertical">
                         <TextBlock  Text="Hard" HorizontalAlignment="Center" FontSize="50"/>
-                        <TextBlock Text="(with duplicates)" HorizontalAlignment="Center" FontSize="20"/>
+                        <TextBlock Text="(possible duplicates)" HorizontalAlignment="Center" FontSize="25"/>
                     </StackPanel>
                 </Button>
             </Grid>
+        </Grid>
+        <Grid x:Name="HelpGrid" Visibility="Collapsed" Background="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Height="700" Width="1250">
+            <Border BorderThickness="15, 15, 15, 15" BorderBrush="#F15A22" Grid.Row="0">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="How to Play Codebreaker" FontSize="40" VerticalAlignment="Center" Margin="16" Foreground="#2B3990" FontFamily="Segoe UI Semibold"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#2B3990" Text="Codebreaker is an EyeGaze version of Mastermind." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" FontWeight="SemiBold" Text="Goal: Deduce the hidden four-color code that the computer generates from a palette of six distinct colors." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="There are two modes of play:" FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" FontWeight="SemiBold" Text="Easy: This mode creates a code with four distinct colors." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" FontWeight="SemiBold" Text="Hard: This mode creates a code which might have duplicate colors." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#2B3990" Text="Steps to Play:" FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="1. In each turn, you attempt to guess the chosen code. That guess consists of four colored circles. To change the color of a circle, you click or dwell on a circle to select it, and then select a color from the palette that appears above." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="2. Once you have colored all four circles, you can click the check mark below the circles, to submit your guess. When you do, feedback will appear under the circles. That feedback will consist of filled-in and outlined stars." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="3. The number of filled-in stars indicate how many colors are correct and in the right place. The number of outlined stars indicate how many colors are correct but in the wrong place. A blank space means no color is correct. Use this information to help crack the code." FontSize="20" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock TextWrapping="Wrap" LineHeight="2" Foreground="#282828" Text="" FontSize="6" Margin="16, 0, 0, 0" FontFamily="Segoe UI"/>
+                    <TextBlock Text="The game ends when you break the code or run out of tries. Good luck!" FontSize="30" VerticalAlignment="Center" Margin="16" Foreground="#2B3990" FontFamily="Segoe UI Semibold"/>
+                </StackPanel>
+            </Border>
+            <Button x:Name="CloseHowToPlayButton" FontSize="40" Width="100" Height="100" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 15, 15, 0" Background="White" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" Click="CloseHowToPlayButton_Click"/>
+        </Grid>
+        <Grid x:Name="CongratsGrid" Visibility="Collapsed" Background="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Height="500" Width="1000">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <Border BorderThickness="15, 15, 15, 15" BorderBrush="#F15A22" Grid.Row="0" Grid.RowSpan="2"/>
+            <TextBlock x:Name="CongratsTextBlock" Text="" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="16" Foreground="#2B3990" FontFamily="Segoe UI Semibold"/>
+            <Button x:Name="CloseCongratsButton" FontSize="40" Width="100" Height="100" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 15, 15, 0" Background="White" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" Click="CloseCongratsButton_Click"/>
+            <Button x:Name="SecondNewGameButton" Click="BacktoStartButton_Click" Content="New Game" FontSize="35" Width="300" Height="150" Grid.Row="1" HorizontalAlignment="Center"/>
         </Grid>
     </Grid>
 </Page>
